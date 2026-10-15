@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kairos Proposal — マーケットプレイス構築のための設計図</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#141C30;
+    --navy-light:#1F2B45;
+    --sand:#F2ECE2;
+    --sand-dim:#E6DED0;
+    --orange:#E8743B;
+    --mint:#3FA18A;
+    --slate:#6B7280;
+    --line:rgba(20,28,48,0.14);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:'Noto Sans JP',sans-serif;
+    background:var(--sand);
+    color:var(--navy);
+    line-height:1.8;
+    font-weight:400;
+  }
+  h1,h2,h3,h4{
+    font-family:'Space Grotesk','Noto Sans JP',sans-serif;
+    font-weight:700;
+    letter-spacing:0.01em;
+  }
+  .mono{
+    font-family:'JetBrains Mono',monospace;
+    letter-spacing:0.05em;
+  }
+  a{color:inherit;text-decoration:none;}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 28px;}
+  section{position:relative;}
+
+  /* ===== 共通：図面グリッド背景 ===== */
+  .blueprint-bg{
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size:36px 36px;
+  }
+
+  .tag-label{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--orange);
+    border:1px solid var(--orange);
+    border-radius:2px;
+    padding:4px 10px;
+  }
+  .tag-label::before{
+    content:'';
+    width:6px;height:6px;
+    background:var(--orange);
+    display:inline-block;
+  }
+
+  /* ===== HERO ===== */
+  .hero{
+    background:var(--navy);
+    color:var(--sand);
+    padding:100px 0 120px;
+    overflow:hidden;
+    position:relative;
+  }
+  .hero::before{
+    content:'';
+    position:absolute;inset:0;
+    background-image:
+      linear-gradient(rgba(242,236,226,0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(242,236,226,0.06) 1px, transparent 1px);
+    background-size:40px 40px;
+    pointer-events:none;
+  }
+  .hero-inner{position:relative;z-index:2;}
+  .hero .kairos-mark{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:14px;
+    letter-spacing:0.3em;
+    text-transform:uppercase;
+    color:var(--mint);
+    margin-bottom:28px;
+    display:flex;align-items:center;gap:14px;
+  }
+  .kairos-mark .bar{width:36px;height:1px;background:var(--mint);}
+  .hero h1{
+    font-size:clamp(32px,5vw,58px);
+    line-height:1.35;
+    max-width:900px;
+    margin-bottom:28px;
+    color:#fff;
+  }
+  .hero h1 em{
+    font-style:normal;
+    color:var(--orange);
+  }
+  .hero p.lead{
+    max-width:620px;
+    font-size:16px;
+    color:rgba(242,236,226,0.8);
+    margin-bottom:46px;
+  }
+  .hero-meta{
+    display:flex;
+    flex-wrap:wrap;
+    gap:14px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+  }
+  .hero-meta span{
+    border:1px solid rgba(242,236,226,0.3);
+    padding:6px 14px;
+    border-radius:2px;
+    color:rgba(242,236,226,0.85);
+  }
+
+  /* ===== 構造図 ===== */
+  .structure-diagram{
+    margin-top:70px;
+    position:relative;
+    z-index:2;
+  }
+  .diagram-svg{width:100%;height:auto;display:block;}
+  .diagram-caption{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    color:rgba(242,236,226,0.5);
+    margin-top:14px;
+    letter-spacing:0.08em;
+  }
+
+  /* ===== SECTION HEADER共通 ===== */
+  .section-head{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:20px;
+    margin-bottom:56px;
+    border-bottom:1px solid var(--line);
+    padding-bottom:28px;
+  }
+  .section-head h2{
+    font-size:clamp(24px,3.4vw,36px);
+    color:var(--navy);
+  }
+  .section-num{
+    font-family:'JetBrains Mono',monospace;
+    font-size:13px;
+    color:var(--slate);
+  }
+
+  /* ===== UNDERSTANDING ===== */
+  .understanding{
+    padding:110px 0;
+    background:var(--sand);
+  }
+  .understand-grid{
+    display:grid;
+    grid-template-columns:1.1fr 1fr;
+    gap:60px;
+    align-items:start;
+  }
+  .understand-text p{
+    margin-bottom:20px;
+    font-size:15.5px;
+    color:#2b3450;
+  }
+  .understand-text .highlight{
+    background:linear-gradient(transparent 60%, rgba(232,116,59,0.28) 60%);
+  }
+  .fact-panel{
+    background:var(--navy);
+    color:var(--sand);
+    padding:36px;
+    border-radius:4px;
+    position:relative;
+  }
+  .fact-panel::before{
+    content:'ISSUE';
+    position:absolute;
+    top:-12px;left:28px;
+    background:var(--orange);
+    color:var(--navy);
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    padding:4px 10px;
+    letter-spacing:0.12em;
+  }
+  .fact-row{
+    display:flex;
+    justify-content:space-between;
+    padding:16px 0;
+    border-bottom:1px solid rgba(242,236,226,0.15);
+    font-size:14px;
+  }
+  .fact-row:last-child{border-bottom:none;}
+  .fact-row .num{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:26px;
+    color:var(--mint);
+    font-weight:700;
+  }
+
+  /* 機能一覧タグ群 */
+  .feature-map{
+    margin-top:70px;
+  }
+  .feature-map h3{
+    font-size:17px;
+    margin-bottom:8px;
+  }
+  .feature-map .note{
+    color:var(--slate);
+    font-size:13.5px;
+    margin-bottom:28px;
+  }
+  .feature-tags{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  .ftag{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12.5px;
+    padding:9px 14px;
+    border-radius:2px;
+    border:1px solid var(--line);
+    background:#fff;
+    color:var(--navy);
+  }
+  .ftag.phase1{
+    background:var(--orange);
+    border-color:var(--orange);
+    color:#fff;
+    font-weight:500;
+  }
+  .ftag.phase2{
+    color:var(--slate);
+  }
+  .legend{
+    display:flex;gap:24px;margin-top:22px;
+    font-size:12px;color:var(--slate);
+    flex-wrap:wrap;
+  }
+  .legend span{display:inline-flex;align-items:center;gap:8px;}
+  .legend i{width:10px;height:10px;display:inline-block;border-radius:2px;}
+
+  /* ===== VALUES ===== */
+  .values{
+    padding:110px 0;
+    background:var(--navy-light);
+    color:var(--sand);
+  }
+  .values .section-head{border-color:rgba(242,236,226,0.18);}
+  .values .section-head h2{color:#fff;}
+  .values .section-num{color:rgba(242,236,226,0.5);}
+  .value-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:2px;
+    background:rgba(242,236,226,0.12);
+  }
+  .value-card{
+    background:var(--navy-light);
+    padding:38px 30px;
+    position:relative;
+  }
+  .value-card .vc-num{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:13px;
+    color:var(--mint);
+    margin-bottom:18px;
+    display:block;
+  }
+  .value-card h3{
+    font-size:19px;
+    margin-bottom:14px;
+    color:#fff;
+  }
+  .value-card p{
+    font-size:14px;
+    color:rgba(242,236,226,0.72);
+  }
+
+  /* ===== PROCESS ===== */
+  .process{
+    padding:110px 0;
+    background:var(--sand);
+  }
+  .timeline{
+    position:relative;
+    padding-left:4px;
+  }
+  .tl-line{
+    position:absolute;
+    left:120px;
+    top:14px;
+    bottom:14px;
+    width:1px;
+    background:var(--line);
+  }
+  .tl-item{
+    display:grid;
+    grid-template-columns:120px 1fr;
+    gap:30px;
+    padding:30px 0;
+    border-bottom:1px dashed var(--line);
+  }
+  .tl-item:last-child{border-bottom:none;}
+  .tl-phase{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    color:var(--slate);
+    position:relative;
+  }
+  .tl-phase::before{
+    content:'';
+    position:absolute;
+    left:116px;
+    top:5px;
+    width:9px;height:9px;
+    background:var(--orange);
+    border-radius:50%;
+  }
+  .tl-body h3{
+    font-size:19px;
+    margin-bottom:10px;
+  }
+  .tl-body p{
+    font-size:14px;
+    color:#3c4463;
+    margin-bottom:6px;
+  }
+  .tl-duration{
+    display:inline-block;
+    margin-top:10px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:11.5px;
+    color:var(--mint);
+    border:1px solid var(--mint);
+    padding:3px 10px;
+    border-radius:2px;
+  }
+
+  /* ===== CLOSING ===== */
+  .closing{
+    background:var(--navy);
+    color:var(--sand);
+    padding:120px 0 90px;
+    text-align:center;
+    position:relative;
+    overflow:hidden;
+  }
+  .closing::before{
+    content:'';
+    position:absolute;
+    width:600px;height:600px;
+    background:radial-gradient(circle, rgba(232,116,59,0.18), transparent 70%);
+    top:-200px;left:50%;
+    transform:translateX(-50%);
+  }
+  .closing-inner{position:relative;z-index:2;}
+  .closing h2{
+    font-size:clamp(26px,4vw,42px);
+    margin-bottom:24px;
+    color:#fff;
+  }
+  .closing p{
+    max-width:560px;
+    margin:0 auto 42px;
+    color:rgba(242,236,226,0.75);
+    font-size:15px;
+  }
+  .cta-btn{
+    display:inline-block;
+    background:var(--orange);
+    color:#141C30;
+    font-weight:700;
+    padding:18px 44px;
+    border-radius:2px;
+    font-size:15px;
+    letter-spacing:0.02em;
+    transition:transform .2s ease, box-shadow .2s ease;
+    box-shadow:0 10px 30px rgba(232,116,59,0.25);
+  }
+  .cta-btn:hover{transform:translateY(-2px);}
+  .closing-foot{
+    margin-top:50px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    color:rgba(242,236,226,0.45);
+  }
+  .closing-foot .divider{
+    width:40px;height:1px;
+    background:rgba(242,236,226,0.3);
+    margin:24px auto;
+  }
+
+  footer{
+    background:#0E1424;
+    color:rgba(242,236,226,0.4);
+    text-align:center;
+    padding:26px 0;
+    font-size:12px;
+    font-family:'JetBrains Mono',monospace;
+    letter-spacing:0.08em;
+  }
+
+  @media (max-width:860px){
+    .understand-grid{grid-template-columns:1fr;}
+    .value-grid{grid-template-columns:1fr;}
+    .tl-line{display:none;}
+    .tl-item{grid-template-columns:1fr;}
+    .tl-phase::before{display:none;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ===================== HERO ===================== -->
+<section class="hero">
+  <div class="wrap hero-inner">
+    <div class="kairos-mark"><span class="bar"></span>KAIROS — PROPOSAL FOR STEP ACTION</div>
+    <h1>8万円で建てられるのは、<br>全部ではなく<em>「最初の一棟」</em>です。</h1>
+    <p class="lead">
+      購入者・出品者・運営が揃う本格マーケットプレイス。そのご要望を拝見し、Kairosは「何を削るか」ではなく「何から建てるか」を一緒に設計するご提案をお届けします。
+    </p>
+    <div class="hero-meta">
+      <span>CLIENT : Step Action</span>
+      <span>BUDGET : ¥50,000 – ¥100,000</span>
+      <span>CATEGORY : マーケットプレイス構築</span>
+    </div>
+
+    <div class="structure-diagram">
+      <svg class="diagram-svg" viewBox="0 0 1000 260" xmlns="http://www.w3.org/2000/svg">
+        <!-- 接続線 -->
+        <line x1="180" y1="130" x2="500" y2="60" stroke="#3FA18A" stroke-width="1" stroke-dasharray="4 4"/>
+        <line x1="180" y1="130" x2="500" y2="200" stroke="#3FA18A" stroke-width="1" stroke-dasharray="4 4"/>
+        <line x1="500" y1="60" x2="820" y2="130" stroke="#E8743B" stroke-width="1" stroke-dasharray="4 4"/>
+        <line x1="500" y1="200" x2="820" y2="130" stroke="#E8743B" stroke-width="1" stroke-dasharray="4 4"/>
+        <line x1="500" y1="60" x2="500" y2="200" stroke="rgba(242,236,226,0.25)" stroke-width="1"/>
+
+        <!-- 購入者 -->
+        <rect x="100" y="100" width="160" height="60" fill="none" stroke="#F2ECE2" stroke-opacity="0.5"/>
+        <text x="180" y="125" fill="#F2ECE2" font-family="JetBrains Mono" font-size="11" text-anchor="middle">BUYER</text>
+        <text x="180" y="142" fill="#F2ECE2" font-family="JetBrains Mono" font-size="9" fill-opacity="0.5" text-anchor="middle">購入者</text>
+
+        <!-- 出品者 -->
+        <rect x="420" y="30" width="160" height="60" fill="none" stroke="#F2ECE2" stroke-opacity="0.5"/>
+        <text x="500" y="55" fill="#F2ECE2" font-family="JetBrains Mono" font-size="11" text-anchor="middle">SELLER</text>
+        <text x="500" y="72" fill="#F2ECE2" font-family="JetBrains Mono" font-size="9" fill-opacity="0.5" text-anchor="middle">出品者</text>
+
+        <!-- 運営 -->
+        <rect x="420" y="170" width="160" height="60" fill="none" stroke="#F2ECE2" stroke-opacity="0.5"/>
+        <text x="500" y="195" fill="#F2ECE2" font-family="JetBrains Mono" font-size="11" text-anchor="middle">ADMIN</text>
+        <text x="500" y="212" fill="#F2ECE2" font-family="JetBrains Mono" font-size="9" fill-opacity="0.5" text-anchor="middle">運営</text>
+
+        <!-- Stripe -->
+        <rect x="740" y="100" width="160" height="60" fill="none" stroke="#E8743B"/>
+        <text x="820" y="125" fill="#E8743B" font-family="JetBrains Mono" font-size="11" text-anchor="middle">STRIPE</text>
+        <text x="820" y="142" fill="#E8743B" font-family="JetBrains Mono" font-size="9" fill-opacity="0.7" text-anchor="middle">決済・送金</text>
+      </svg>
+      <div class="diagram-caption">FIG.01 — 三者構造 ＋ 決済基盤。すべてを同時に組み上げず、接続点から順に固めます。</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== UNDERSTANDING ===================== -->
+<section class="understanding blueprint-bg">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>ご依頼内容、拝見しました。</h2>
+      <span class="section-num mono">01 / UNDERSTANDING</span>
+    </div>
+
+    <div class="understand-grid">
+      <div class="understand-text">
+        <p>会員・出品管理、検索、取引、<span class="highlight">Stripe Connectによる決済と自動送金</span>、トラブル対応、メッセージ、運営管理、通知の自動化——。ご提示いただいた仕様書は、<span class="highlight">正直なところ、数百万円規模のプロジェクトでも珍しくない要件数</span>です。</p>
+        <p>それを8万円以内・WordPress＋既存プラグインで、という条件。これは「安く依頼したい」という話ではなく、<strong>「何が本当に今必要か」をまだ誰も言語化できていない</strong>段階だとKairosは読み取りました。</p>
+        <p>だからこそ最初にすべきは「全部盛りの見積り」ではなく、<strong>この予算で現実的に立ち上がる最小単位の見極め</strong>だと考えています。</p>
+      </div>
+
+      <div class="fact-panel">
+        <div class="fact-row"><span>要望として挙がった機能カテゴリ</span><span class="num">11</span></div>
+        <div class="fact-row"><span>Stripe Connect連携を前提とした決済要件</span><span class="num">有</span></div>
+        <div class="fact-row"><span>提示された開発予算上限</span><span class="num mono" style="font-size:20px;">¥80,000</span></div>
+        <div class="fact-row"><span>このまま一括発注した場合のリスク</span><span class="num" style="color:#E8743B;">高</span></div>
+      </div>
+    </div>
+
+    <div class="feature-map">
+      <h3>11の機能カテゴリを、Kairosはこう見ています</h3>
+      <p class="note">すべてを否定するのではなく、「今すぐ・この予算で着手できるもの」と「仕組みとして設計だけ先に用意し、後続フェーズで実装するもの」に仕分けます。</p>
+      <div class="feature-tags">
+        <span class="ftag phase1">01 会員・出品者管理</span>
+        <span class="ftag phase1">02 商品出品・検索</span>
+        <span class="ftag phase1">04 購入・取引（簡易版）</span>
+        <span class="ftag phase1">08 運営管理画面（最小）</span>
+        <span class="ftag phase2">03 リンク共有・OGP</span>
+        <span class="ftag phase2">05 Stripe Connect送金</span>
+        <span class="ftag phase2">06 トラブル対応</span>
+        <span class="ftag phase2">07 取引メッセージ</span>
+        <span class="ftag phase2">09 自動処理・通知</span>
+        <span class="ftag phase2">10 決済整合性管理</span>
+        <span class="ftag phase2">11 セキュリティ拡張</span>
+      </div>
+      <div class="legend">
+        <span><i style="background:#E8743B;"></i>今回の予算で着手可能な核</span>
+        <span><i style="background:#fff;border:1px solid var(--line);"></i>設計を残し、次フェーズで実装</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== VALUES ===================== -->
+<section class="values">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Kairosが提供できること</h2>
+      <span class="section-num mono">02 / VALUE</span>
+    </div>
+    <div class="value-grid">
+      <div class="value-card">
+        <span class="vc-num mono">V.01</span>
+        <h3>誠実な線引き</h3>
+        <p>「8万円でここまでできます／ここからは次の投資が必要です」を最初に明文化。曖昧な見積りで後から揉める事態を避けます。</p>
+      </div>
+      <div class="value-card">
+        <span class="vc-num mono">V.02</span>
+        <h3>WordPress前提の最適構成</h3>
+        <p>会員・出品・検索はWooCommerceやVendor系プラグインを土台に構築し、スクラッチ開発を最小化。コストと保守性を両立します。</p>
+      </div>
+      <div class="value-card">
+        <span class="vc-num mono">V.03</span>
+        <h3>拡張前提のStripe設計</h3>
+        <p>今回フル実装しないStripe Connect送金も、後から差し込める形でデータ構造・決済フローの土台だけは最初から用意します。</p>
+      </div>
+      <div class="value-card">
+        <span class="vc-num mono">V.04</span>
+        <h3>引き継げる納品物</h3>
+        <p>ソースコード・サーバー・DB・各種アカウントは完全譲渡。別の開発者が見ても迷わない構成図とドキュメントを添えます。</p>
+      </div>
+      <div class="value-card">
+        <span class="vc-num mono">V.05</span>
+        <h3>伴走できる修正対応</h3>
+        <p>納品前テストに加え、合意した無償修正期間を明示。文言修正や表示調整には都度相談しながら柔軟に対応します。</p>
+      </div>
+      <div class="value-card">
+        <span class="vc-num mono">V.06</span>
+        <h3>次フェーズへの地図</h3>
+        <p>トラブル対応・自動通知・決済整合性管理などは、優先順位と概算費用を含めたロードマップとしてお渡しします。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== PROCESS ===================== -->
+<section class="process blueprint-bg">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>進め方 — 4つのステップ</h2>
+      <span class="section-num mono">03 / PROCESS</span>
+    </div>
+
+    <div class="timeline">
+      <div class="tl-line"></div>
+
+      <div class="tl-item">
+        <div class="tl-phase">STEP 00</div>
+        <div class="tl-body">
+          <h3>要件の棚卸しと優先順位設計</h3>
+          <p>11カテゴリの機能を「今やる／後でやる」に仕分け。仕様書を基に、8万円の中で成立する範囲を具体的な機能リストとして確定します。</p>
+          <span class="tl-duration">所要目安：2〜3日 / 無償ヒアリング</span>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-phase">STEP 01</div>
+        <div class="tl-body">
+          <h3>MVP設計・構成選定</h3>
+          <p>WordPress＋既存プラグイン（WooCommerce等）を軸に、会員・出品・検索・簡易取引までの画面構成とデータ構造を設計します。</p>
+          <span class="tl-duration">所要目安：3〜5日</span>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-phase">STEP 02</div>
+        <div class="tl-body">
+          <h3>構築・実装</h3>
+          <p>プラグイン導入・カスタマイズ・運営管理画面の最小構成を実装。進行中の文言修正やデザイン調整にも都度対応します。</p>
+          <span class="tl-duration">所要目安：1.5〜2週間</span>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-phase">STEP 03</div>
+        <div class="tl-body">
+          <h3>テスト・引き渡し・ロードマップ提示</h3>
+          <p>主要機能の動作確認とバグ修正を実施後、全アカウント・ソースコードを引き渡し。次フェーズ（決済連携・自動化等）の概算も提示します。</p>
+          <span class="tl-duration">所要目安：3〜4日 ＋ 無償修正期間を明示</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== CLOSING ===================== -->
+<section class="closing">
+  <div class="wrap closing-inner">
+    <div class="tag-label" style="margin-bottom:24px;">NEXT ACTION</div>
+    <h2>まずは、設計図から話しませんか。</h2>
+    <p>
+      「8万円で何を諦めるか」ではなく、「8万円から何を始めるか」。
+      Step Actionさまの描くマーケットプレイス構想を伺いながら、現実的な第一歩をKairosと一緒に描いていきましょう。
+    </p>
+    <a href="#" class="cta-btn">Kairosに相談する →</a>
+
+    <div class="closing-foot">
+      <div class="divider"></div>
+      ご提案者：Kairos（Web制作・システム開発チーム）<br>
+      本提案書は Step Action 様の募集内容に基づき作成したものです。
+    </div>
+  </div>
+</section>
+
+<footer>
+  KAIROS — DESIGN & DEVELOPMENT PROPOSAL / BLUEPRINT FOR STEP ACTION
+</footer>
+
+</body>
+</html>
